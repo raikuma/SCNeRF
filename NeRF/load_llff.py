@@ -308,7 +308,7 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     
     dists = np.sum(np.square(c2w[:3,3] - poses[:,:3,3]), -1)
     if args.llffhold == -1:
-        i_test = np.array([0, 1])
+        i_test = np.array([0])
     elif args.llffhold > 0:
         i_test = np.arange(images.shape[0])[::args.llffhold]
     else:
