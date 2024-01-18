@@ -112,15 +112,15 @@ def train():
     if args.dataset_type == 'llff':
         
         (
-            images, noisy_extrinsic, bds, render_poses, i_test, gt_camera_info
+            images, noisy_extrinsic, bds, render_poses, i_train, i_test, gt_camera_info
         ) = load_llff_data(
             args.datadir, args.factor, recenter=True, bd_factor=.75, 
             spherify=args.spherify, args=args
         )
         
         i_val = i_test
-        i_train = np.array([i for i in np.arange(int(images.shape[0])) if
-                            (i not in i_test and i not in i_val)])
+        # i_train = np.array([i for i in np.arange(int(images.shape[0])) if
+        #                     (i not in i_test and i not in i_val)])
         
         noisy_idx = i_train[0]
         hwf = noisy_extrinsic[noisy_idx, :3, -1]
