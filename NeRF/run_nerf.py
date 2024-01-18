@@ -852,46 +852,48 @@ def train():
 
             print("VAL PSNR {}: {}".format(img_i, val_psnr.item()))
 
-            if camera_model is None:
-                eval_prd = projected_ray_distance_evaluation(
-                    images=images, 
-                    index_list=i_val,
-                    args=args, 
-                    ray_fun=get_rays_kps_no_camera,
-                    ray_fun_gt=get_rays_kps_no_camera,
-                    H=H,
-                    W=W,
-                    mode="val",
-                    matcher=matcher,
-                    gt_intrinsic=gt_intrinsic,
-                    gt_extrinsic=gt_extrinsic,
-                    method="NeRF",
-                    device=device,
-                    intrinsic=gt_intrinsic,
-                    extrinsic=gt_extrinsic,
-                )
+            if args.llffhold != -1:
 
-            else:
-                eval_prd = projected_ray_distance_evaluation(
-                    images=images, 
-                    index_list=i_val,
-                    args=args, 
-                    ray_fun=get_rays_kps_use_camera,
-                    ray_fun_gt=get_rays_kps_no_camera,
-                    H=H,
-                    W=W,
-                    mode="val",
-                    matcher=matcher,
-                    gt_intrinsic=gt_intrinsic,
-                    gt_extrinsic=gt_extrinsic,
-                    method="NeRF",
-                    device=device,
-                    camera_model=camera_model
-                )            
-            
-            scalars_to_log["val/proj_ray_dist_loss"] = eval_prd
+                if camera_model is None:
+                    eval_prd = projected_ray_distance_evaluation(
+                        images=images, 
+                        index_list=i_val,
+                        args=args, 
+                        ray_fun=get_rays_kps_no_camera,
+                        ray_fun_gt=get_rays_kps_no_camera,
+                        H=H,
+                        W=W,
+                        mode="val",
+                        matcher=matcher,
+                        gt_intrinsic=gt_intrinsic,
+                        gt_extrinsic=gt_extrinsic,
+                        method="NeRF",
+                        device=device,
+                        intrinsic=gt_intrinsic,
+                        extrinsic=gt_extrinsic,
+                    )
 
-            print("Validation PRD : {}".format(eval_prd))
+                else:
+                    eval_prd = projected_ray_distance_evaluation(
+                        images=images, 
+                        index_list=i_val,
+                        args=args, 
+                        ray_fun=get_rays_kps_use_camera,
+                        ray_fun_gt=get_rays_kps_no_camera,
+                        H=H,
+                        W=W,
+                        mode="val",
+                        matcher=matcher,
+                        gt_intrinsic=gt_intrinsic,
+                        gt_extrinsic=gt_extrinsic,
+                        method="NeRF",
+                        device=device,
+                        camera_model=camera_model
+                    )            
+                
+                scalars_to_log["val/proj_ray_dist_loss"] = eval_prd
+
+                print("Validation PRD : {}".format(eval_prd))
 
         # Logging Step
             
