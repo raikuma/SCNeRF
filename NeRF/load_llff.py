@@ -308,7 +308,7 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     
     dists = np.sum(np.square(c2w[:3,3] - poses[:,:3,3]), -1)
     if args.llffhold == -1:
-        i_test = np.array([0])
+        i_test = np.array([0, 1])
     elif args.llffhold > 0:
         i_test = np.arange(images.shape[0])[::args.llffhold]
     else:
@@ -316,7 +316,10 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     print('HOLDOUT view is', i_test)
 
     poses_update = poses.copy()
-    i_train = np.array([i for i in range(len(poses_update)) if not i in i_test])
+    if args.llffhold == -1:
+        i_train = np.array([i for i in range(len(poses_update)) if i > 0])
+    else:
+        i_train = np.array([i for i in range(len(poses_update)) if not i in i_test])
 
     if args.initial_noise_size_intrinsic != 0.0:
         poses_update[i_train, -1, -1] = poses_update[i_train, -1, -1] * \
