@@ -671,47 +671,49 @@ def train():
                 os.makedirs(testsavedir, exist_ok=True)
                 print('test poses shape', noisy_extrinsic[i_test].shape)
 
-                if camera_model is None:
-                    eval_prd = projected_ray_distance_evaluation(
-                        images=images, 
-                        index_list=i_test,
-                        args=args, 
-                        ray_fun=get_rays_kps_no_camera,
-                        ray_fun_gt=get_rays_kps_no_camera,
-                        H=H,
-                        W=W,
-                        mode="test",
-                        matcher=matcher,
-                        gt_intrinsic=gt_intrinsic,
-                        gt_extrinsic=gt_extrinsic,
-                        method="NeRF",
-                        device=device,
-                        intrinsic=gt_intrinsic,
-                        extrinsic=gt_extrinsic
-                    )
-                    
-                else:
-                    eval_prd = projected_ray_distance_evaluation(
-                        images=images, 
-                        index_list=i_test,
-                        args=args, 
-                        ray_fun=get_rays_kps_use_camera,
-                        ray_fun_gt=get_rays_kps_no_camera,
-                        H=H,
-                        W=W,
-                        mode="test",
-                        matcher=matcher,
-                        gt_intrinsic=gt_intrinsic,
-                        gt_extrinsic=gt_extrinsic,
-                        method="NeRF",
-                        device=device,
-                        camera_model=camera_model,
-                        intrinsic=gt_intrinsic,
-                        extrinsic=gt_extrinsic
-                    )
-                    
-                scalars_to_log["test/proj_ray_dist_loss"] = eval_prd
-                print(f"Test projection ray distance loss {eval_prd}")
+                if args.llffhold != -1:
+
+                    if camera_model is None:
+                        eval_prd = projected_ray_distance_evaluation(
+                            images=images, 
+                            index_list=i_test,
+                            args=args, 
+                            ray_fun=get_rays_kps_no_camera,
+                            ray_fun_gt=get_rays_kps_no_camera,
+                            H=H,
+                            W=W,
+                            mode="test",
+                            matcher=matcher,
+                            gt_intrinsic=gt_intrinsic,
+                            gt_extrinsic=gt_extrinsic,
+                            method="NeRF",
+                            device=device,
+                            intrinsic=gt_intrinsic,
+                            extrinsic=gt_extrinsic
+                        )
+                        
+                    else:
+                        eval_prd = projected_ray_distance_evaluation(
+                            images=images, 
+                            index_list=i_test,
+                            args=args, 
+                            ray_fun=get_rays_kps_use_camera,
+                            ray_fun_gt=get_rays_kps_no_camera,
+                            H=H,
+                            W=W,
+                            mode="test",
+                            matcher=matcher,
+                            gt_intrinsic=gt_intrinsic,
+                            gt_extrinsic=gt_extrinsic,
+                            method="NeRF",
+                            device=device,
+                            camera_model=camera_model,
+                            intrinsic=gt_intrinsic,
+                            extrinsic=gt_extrinsic
+                        )
+                        
+                    scalars_to_log["test/proj_ray_dist_loss"] = eval_prd
+                    print(f"Test projection ray distance loss {eval_prd}")
                 
                 with torch.no_grad():
             

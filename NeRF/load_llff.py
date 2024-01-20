@@ -316,7 +316,8 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     print('HOLDOUT view is', i_test)
 
     poses_update = poses.copy()
-    i_train = np.array([i for i in range(len(poses_update)) if not i in i_test])
+    # i_train = np.array([i for i in range(len(poses_update)) if not i in i_test])
+    i_train = np.array([i for i in range(len(poses_update))])
 
     if args.initial_noise_size_intrinsic != 0.0:
         poses_update[i_train, -1, -1] = poses_update[i_train, -1, -1] * \
