@@ -320,10 +320,10 @@ def load_llff_data(basedir, factor=8, recenter=True, bd_factor=.75, spherify=Fal
     i_train = np.array([i for i in range(len(poses_update))])
 
     if args.i_train:
-        i_train = np.array(eval(args.i_train))
+        i_train = np.array(args.i_train)
         print('Overriding i_train', i_train)
     if args.i_test:
-        i_test = np.array(eval(args.i_test))
+        i_test = np.array(args.i_test)
         print('Overriding i_test', i_test)
 
     if args.initial_noise_size_intrinsic != 0.0:
