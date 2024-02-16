@@ -230,24 +230,48 @@ def train():
     )
 
     # Load nerf model
-    checkpoint_path = os.path.join(basedir, expname, str(args.N_iters)+'.tar')
+    checkpoint_path = os.path.join(basedir, expname, str(args.N_iters).zfill(6)+'.tar')
+    print('Loading from checkpoint:', checkpoint_path)
     state_dict = torch.load(checkpoint_path)
     camera_model.load_state_dict(state_dict["camera_model"])
 
+    def gen_poses_bounds(c2ws, hwf, bds):
+        # c2ws: N X [3|4] X 4
+        # hwf: N X 3
+        # bds: N X 2
+        c2ws = c2ws[:, :3, :4]
+        hwf = hwf.reshape(-1, 3, 1)
+        poses = np.concatenate([c2ws, hwf], -1) # N X 3 X 5
+        poses = np.concatenate([-poses[:, :, 1:2], poses[:, :, 0:1], poses[:, :, 2:]], axis=-1)
+        poses = poses.reshape(-1, 15)
+        poses_bounds = np.concatenate([poses, bds], -1)
+        return poses_bounds
+
     K = camera_model.get_intrinsic().detach().cpu().numpy()[:3,:3]
     c2ws = camera_model.get_extrinsic().detach().cpu().numpy()[:,:3,:4]
+
     N = len(c2ws)
-    hwf = np.tile( [ [hwf[0]], [hwf[1]], [K[0,0]] ], (N, 1, 1)) * args.factor
-    poses = np.concatenate([c2ws, hwf], -1)
+    hwf = np.tile( [hwf[0], hwf[1], K[0,0]], (N, 1) ) * args.factor # use fx as f
+    bds = np.tile( [near, far], (N, 1) )
+    poses_bounds = gen_poses_bounds(c2ws, hwf, bds)
 
-    poses = np.concatenate([-poses[:, :, 1:2], poses[:, :, 0:1], poses[:, :, 2:]], axis=-1)
+    intrinsic = np.tile( K.reshape(1, 9), (N, 1) )
+    intrinsic[:, :6] *= args.factor
 
-    poses = np.reshape(poses, (N, -1))
-    bds = np.tile([[near, far]], [N, 1])
-    poses_bounds = np.concatenate([poses, bds], 1)
-    
-    npy_path = os.path.join(basedir, expname, 'poses_bounds.npy')
+    # test_scene = 4
+    # if test_scene != None: # make test_scene as idx 0
+    #     idx = [test_scene] + [i for i in range(N) if i != test_scene]
+    #     poses_bounds = poses_bounds[idx]
+    #     intrinsic = intrinsic[idx]
+
+    # scale = 6
+    # if scale != None:
+    #     poses_bounds[:, [3, 8, 13, 16]] *= scale
+
+    npy_path = os.path.join(basedir, expname, f'poses_bounds_sc_{args.N_iters}.npy')
     np.save(npy_path, poses_bounds)
+    npy_path = os.path.join(basedir, expname, f'intrinsic_sc_{args.N_iters}.npy')
+    np.save(npy_path, intrinsic)
 
     exit(0)
 
